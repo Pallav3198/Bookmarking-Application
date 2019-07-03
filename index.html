@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Bookmarking Application</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body onload="fetchBookmarks()">
+
+    <div class="container">
+
+        <div class="jumbotron">
+            <h1>Bookmarking Application</h1>
+            <p class="lead">Bookmark your favorite sites here!</p>
+            <form action="" id="myForm">
+                <div class="form-group">
+                    <input type="text" class="form-control mb-3" id="siteName" placeholder="Website Name">
+                    <input type="text" class="form-control mb-3" id="siteUrl" placeholder="Web Address">
+                    <button type="submit" class="btn btn-lg btn-success">Submit</button>
+                </div>
+            </form>
+            <footer class="footer">
+                <p>&copy; 2017 Pallav Kumar</p>
+            </footer>
+
+        </div>
+        <div class="row marketing">
+            <div class="col-lg-12">
+                <div class="bookmarksResults"></div>
+            </div>
+
+        </div>
+
+    </div>
+    <!-- /container -->
+    <script>
+        document.querySelector('#myForm').addEventListener('submit', saveBookmark);
+
+        function saveBookmark(e) {
+            let siteName = document.querySelector('#siteName').value;
+            let siteUrl = document.querySelector('#siteUrl').value;
+
+            if (!validateForm(siteName, siteUrl)) {
+                return false;
+            }
+
+            let bookmark = {
+                site: siteName,
+                url: siteUrl
+            }
+            if (localStorage.getItem('bookmarks') === null) {
+                bookmarks = [];
+                bookmarks.push(bookmark);
+                localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+            } else {
+                let bookmarks = JSON.parse(localStorage.getItem('bookmarks'));
+                bookmarks.push(bookmark);
+                localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+
+            }
+            e.preventDefault();
+            fetchBookmarks();
+        }
+
+        function fetchBookmarks() {
+            let bookmarks = JSON.parse(localStorage.getItem('bookmarks'));
+            let bookmarksResults = document.querySelector('.bookmarksResults');
+            bookmarksResults.innerHTML = '';
+            for (let i = 0; i < bookmarks.length; i++) {
+                let name = bookmarks[i].site;
+                let url = bookmarks[i].url;
+                bookmarksResults.innerHTML += '<div class = "card bg-light text-dark card-body mb-2">' +
+                    '<h3>' + name +
+                    `<a class = "btn btn-default target="_blank href=" ${url}">Visit </a>` +
+                    '<a onclick = "deleteBookmarks(\'' + url + '\')" class = "btn btn-danger" target="_blank href="#">Delete</a>' +
+                    '</h3>' +
+                    '</div>';
+            }
+
+        }
+
+        function deleteBookmarks(url) {
+            let bookmarks = JSON.parse(localStorage.getItem('bookmarks'));
+            for (let j = 0; j < bookmarks.length; j++) {
+                if (bookmarks[j].url == url)
+                    bookmarks.splice(j, 1);
+            }
+            localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+
+            // re-fetch bookmarks 
+            fetchBookmarks();
+        }
+
+
+
+        function validateForm(siteName, siteUrl) {
+
+            if (!siteName || !siteUrl) {
+                alert('Please fill in the form');
+                return false; // doesnot add to bookmarks
+            }
+            // Regex matching 
+            var expression = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
+            var regex = new RegExp(expression);
+            if (!siteUrl.match(regex)) {
+                alert('Please use a valid Url!');
+                return false;
+            }
+            return true;
+        }
+    </script>
+
+</body>
+
+
+</html>
